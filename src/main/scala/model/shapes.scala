@@ -46,13 +46,15 @@ object LineSegment {
 
 }
 
-class Polygon( val children : Point* ) extends Shape {
-  require( children != null, "null children in " + getClass.getSimpleName )
-  require( !children.contains( null ), "null child in " + getClass.getSimpleName )
+class Group(val children: Point*) extends Shape {
+  require(children != null, "null children in " + getClass.getSimpleName)
+  require(! children.contains(null), "null child in " + getClass.getSimpleName)
+}
+/** The companion object that allows us to use this class like a case class. */
+object Group {
+  def apply(children: Point*) = new Group(children: _*)
+  def unapply(g: Group) = Some(g.children)
 }
 
-object Polygon {
-  def apply( children : Point* ) = new Polygon( children : _* )
-
-  def unapply( p : Polygon ) = Some( p.children )
-}
+/** A special case of a group consisting only of Points. */
+case class Polygon(override val children: Point*) extends Group(children: _*)

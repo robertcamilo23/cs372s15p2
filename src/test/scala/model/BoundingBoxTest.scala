@@ -19,6 +19,6 @@ class BoundingBoxTest extends FlatSpec with ShouldMatchers {
     boundingBox( simpleLocation ) should equal( Location( 70, 30, Rectangle( 80, 120 ) ) )
   }
   it should "work for a simple line segment" in {
-    boundingBox( simpleLineSegment ) should equal( Location( -3, -3, Rectangle( 3, 1 ) ) )
+    boundingBox( simpleLineSegment ) should equal( Location( -3, -4, Rectangle( 3, 1 ) ) )
   }
 }
