@@ -19,6 +19,8 @@ object boundingBox {
       apply( Group( points ) )
     case LineSegment( p1, p2 ) =>
       apply( Group( p1, p2 ) )
+    case Ray( p1, p2 ) =>
+      apply( LineSegment( p1, p2 ) )
     case Location( x, y, shape ) =>
       val shapeLoc = apply( shape )
       Location( x + shapeLoc.x, y + shapeLoc.y, shape )
@@ -26,9 +28,9 @@ object boundingBox {
       Location( 0, 0, Rectangle( 0, 0 ) )
   }
 
-  def locationValuesOfGroup( points : Seq[ Point ] ) : (Int, Int, Int, Int) = {
+  def locationValuesOfGroup( points : Seq[ Point ] ) : (Double, Double, Double, Double) = {
 
-    def minMaxXY( points : Seq[ Point ] ) : (Int, Int, Int, Int) = points.foldLeft( (points.head.x, points.head.y, points.head.x, points.head.y) )( ( r, c ) =>
+    def minMaxXY( points : Seq[ Point ] ) : (Double, Double, Double, Double) = points.foldLeft( (points.head.x, points.head.y, points.head.x, points.head.y) )( ( r, c ) =>
       (math.min( r._1, c.x ), math.min( r._2, c.y ), math.max( r._3, c.x ), math.max( r._4, c.y )) )
 
     val minMaxXYVal = minMaxXY( points )
