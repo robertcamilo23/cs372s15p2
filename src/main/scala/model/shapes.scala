@@ -41,7 +41,7 @@ class LineSegment( val p1 : Point, val p2 : Point ) extends Shape {
 
     val as = (( this.p2.y - this.p1.y ) / ( this.p2.x - this.p1.x ), ( lineSegment.p2.y - lineSegment.p1.y ) / ( lineSegment.p2.x - lineSegment.p1.x ))
     if( as._1 == as._2 ) return false
-    
+
     val bs = (this.p1.y - ( this.p1.x * as._1 ), lineSegment.p1.y - ( lineSegment.p1.x * as._2 ))
     val xIntersection = ( bs._2 - bs._1 ) / ( as._1 - as._2 )
     val yIntersection = as._1 * xIntersection + bs._1
@@ -76,4 +76,11 @@ object Group {
 }
 
 /** A special case of a group consisting only of Points. */
-case class Polygon( override val children : Point* ) extends Group( children : _* )
+case class Polygon( override val children : Point* ) extends Group( children : _* ) {
+
+  def getLineSegments : List[ LineSegment ] = {
+    val pairPoints = this.children.sliding( 2 ).toList
+    return pairPoints.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
+  }
+  
+}
