@@ -82,4 +82,8 @@ case class Polygon( override val children : Point* ) extends Group( children : _
     this.children.sliding( 2 ).toList.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
   }
 
+  def intersections( ray : Ray ) : Integer = {
+    getLineSegments.foldLeft( 0 )( ( r, c ) => r + ( if( c.intersectsLineSegment( ray ) ) 1 else 0 ) )
+  }
+
 }
