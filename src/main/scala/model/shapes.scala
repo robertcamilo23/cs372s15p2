@@ -79,8 +79,7 @@ object Group {
 case class Polygon( override val children : Point* ) extends Group( children : _* ) {
 
   def getLineSegments : List[ LineSegment ] = {
-    val pairPoints = this.children.sliding( 2 ).toList
-    return pairPoints.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
+    this.children.sliding( 2 ).toList.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
   }
-  
+
 }
