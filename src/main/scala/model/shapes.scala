@@ -24,7 +24,11 @@ object Location {
 }
 
 /** A rectangle with specified width and height. */
-case class Rectangle( width : Double, height : Double ) extends Shape
+case class Rectangle( width : Double, height : Double ) extends Shape {
+
+  def area : Double = width * height
+
+}
 
 /** A circle with a specified radius. */
 case class Circle( radius : Int ) extends Shape
@@ -41,6 +45,11 @@ class LineSegment( val p1 : Point, val p2 : Point ) extends Shape {
 
     val as = (( this.p2.y - this.p1.y ) / ( this.p2.x - this.p1.x ), ( lineSegment.p2.y - lineSegment.p1.y ) / ( lineSegment.p2.x - lineSegment.p1.x ))
     if( as._1 == as._2 ) return false
+
+    if( as._1.isInfinite ) {
+      if( this.p1.y > this.p2.y ) return this.p1.x > lineSegment.p1.x && this.p1.y >= lineSegment.p1.y && this.p2.y <= lineSegment.p1.y
+      else return this.p1.x > lineSegment.p1.x && this.p2.y >= lineSegment.p1.y && this.p1.y <= lineSegment.p1.y
+    }
 
     val bs = (this.p1.y - ( this.p1.x * as._1 ), lineSegment.p1.y - ( lineSegment.p1.x * as._2 ))
     val xIntersection = ( bs._2 - bs._1 ) / ( as._1 - as._2 )
@@ -61,7 +70,9 @@ object LineSegment {
 
 }
 
-case class Ray( override val p1 : Point, override val p2 : Point ) extends LineSegment( p1, p2 )
+case class Ray( override val p1 : Point, override val p2 : Point ) extends LineSegment( p1, p2 ) {
+  require( p1.y == p2.y, "The points in the ray are not in the same y, so it is a not valid ray in " + getClass.getSimpleName )
+}
 
 class Group( val children : Point* ) extends Shape {
   require( children != null, "null children in " + getClass.getSimpleName )
@@ -86,4 +97,29 @@ case class Polygon( override val children : Point* ) extends Group( children : _
     getLineSegments.foldLeft( 0 )( ( r, c ) => r + ( if( c.intersectsLineSegment( ray ) ) 1 else 0 ) )
   }
 
+  def getBoundingBox : (Double, Double, Double, Double, Double, Rectangle) = {
+    val b = boundingBox( Polygon.this )
+    val rectangle = b.child.asInstanceOf[ Rectangle ]
+    (b.x, b.y, b.x + rectangle.width, b.y + rectangle.height, rectangle.area, rectangle)
+  }
+
+  def isOdd( num : Integer ) : Boolean = num % 2 == 1
+
+  def getPolygonArea : Double = {
+    val boundingBoxTuple = getBoundingBox
+
+    def pointsInPolygon( xInitial : Double, xEdge : Double, yInitial : Double, yEdge : Double ) : Int = {
+
+      def pointsInPolygonImpl( xValue : Double, yValue : Double, pointsPolygon : Int ) : Int = {
+        if( xValue >= xEdge && yValue >= yEdge ) pointsPolygon
+        else if( yValue >= yEdge ) pointsInPolygonImpl( ( xValue + 0.1 ), yInitial, pointsPolygon + ( if( isOdd( intersections( Ray( Point( xValue, yValue ), Point( xEdge, yValue ) ) ) ) ) 1 else 0 ) )
+        else pointsInPolygonImpl( xValue, ( yValue + 0.1 ), pointsPolygon + ( if( isOdd( intersections( Ray( Point( xValue, yValue ), Point( xEdge, yValue ) ) ) ) ) 1 else 0 ) )
+      }
+
+      pointsInPolygonImpl( xInitial, yInitial, 0 )
+    }
+
+    ( pointsInPolygon( boundingBoxTuple._1, boundingBoxTuple._3, boundingBoxTuple._2, boundingBoxTuple._4 ).toDouble / 100 )
+
+  }
 }
