@@ -47,8 +47,19 @@ class LineSegment( val p1 : Point, val p2 : Point ) extends Shape {
     if( as._1 == as._2 ) return false
 
     if( as._1.isInfinite ) {
-      if( this.p1.y > this.p2.y ) return this.p1.x > lineSegment.p1.x && this.p1.y >= lineSegment.p1.y && this.p2.y <= lineSegment.p1.y
-      else return this.p1.x > lineSegment.p1.x && this.p2.y >= lineSegment.p1.y && this.p1.y <= lineSegment.p1.y
+      lineSegment match {
+        case x : Ray => {
+          if( this.p1.y > this.p2.y ) return this.p1.x > lineSegment.p1.x && this.p1.y >= lineSegment.p1.y && this.p2.y <= lineSegment.p1.y
+          else return this.p1.x > lineSegment.p1.x && this.p2.y >= lineSegment.p1.y && this.p1.y <= lineSegment.p1.y
+        }
+        case x : LineSegment => {
+          val yIntersection = as._2 * this.p1.x + lineSegment.p1.y - ( lineSegment.p1.x * as._2 )
+          if( lineSegment.p1.x < this.p1.x && this.p1.x < lineSegment.p2.x ) {
+            if( this.p1.y > this.p2.y ) return this.p1.y >= yIntersection && this.p2.y <= yIntersection
+            else return this.p2.y >= yIntersection && this.p1.y <= yIntersection
+          }
+        }
+      }
     }
 
     val bs = (this.p1.y - ( this.p1.x * as._1 ), lineSegment.p1.y - ( lineSegment.p1.x * as._2 ))
@@ -58,8 +69,10 @@ class LineSegment( val p1 : Point, val p2 : Point ) extends Shape {
     if( lineSegment.p1.x < xIntersection && xIntersection < lineSegment.p2.x ) {
       if( this.p1.y > this.p2.y ) this.p1.y >= yIntersection && this.p2.y <= yIntersection
       else this.p2.y >= yIntersection && this.p1.y <= yIntersection
-    } else false
+    }
+    else false
   }
+
 }
 
 object LineSegment {
