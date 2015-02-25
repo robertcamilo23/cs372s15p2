@@ -87,14 +87,14 @@ case class Ray( override val p1 : Point, override val p2 : Point ) extends LineS
   require( p1.y == p2.y, "The points in the ray are not in the same y, so it is a not valid ray in " + getClass.getSimpleName )
 }
 
-class Group( val children : Point* ) extends Shape {
+class Group( val children : Shape* ) extends Shape {
   require( children != null, "null children in " + getClass.getSimpleName )
   require( !children.contains( null ), "null child in " + getClass.getSimpleName )
 }
 
 /** The companion object that allows us to use this class like a case class. */
 object Group {
-  def apply( children : Point* ) = new Group( children : _* )
+  def apply( children : Shape* ) = new Group( children : _* )
 
   def unapply( g : Group ) = Some( g.children )
 }

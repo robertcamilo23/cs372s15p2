@@ -2,11 +2,15 @@ package model
 
 object fixtures {
 
+  import model.polygonFixtures._
+
   val simpleCircle = Circle( 50 )
 
   val simpleRectangle = Rectangle( 80, 120 )
 
   val simplePolygon = Polygon( Point( 50, 50 ), Point( 60, 100 ), Point( 100, 110 ), Point( 120, 60 ) )
+
+  val simpleGroup = Group( simplePolygon, square );
 
   val simpleLocation = Location( 70, 30, Rectangle( 80, 120 ) )
 

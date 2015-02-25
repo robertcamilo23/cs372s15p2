@@ -21,4 +21,7 @@ class BoundingBoxTest extends FlatSpec with ShouldMatchers {
   it should "work for a simple line segment" in {
     boundingBox( simpleLineSegment ) should equal( Location( -3, -4, Rectangle( 3, 1 ) ) )
   }
+  it should "work for a simple group of polygons" in {
+    boundingBox( simpleGroup ) should equal( Location( 0, 0, Rectangle( 120, 110 ) ) )
+  }
 }
