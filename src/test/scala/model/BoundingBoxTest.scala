@@ -1,6 +1,6 @@
 package model
 
-import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.scalatest.{ FlatSpec, ShouldMatchers }
 
 class BoundingBoxTest extends FlatSpec with ShouldMatchers {
 

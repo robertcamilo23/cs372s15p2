@@ -65,11 +65,11 @@ class LineSegmentTest extends FlatSpec with ShouldMatchers {
   it should "not intersect with the diagonal up right line segment" in {
     verticalLeftLineSegment.intersectsLineSegment( diagonalUpRightLineSegment ) should equal( false )
   }
-  it should " not intersect with the horizontal down line segment" in {
-    verticalLeftLineSegment.intersectsLineSegment( horizontalDownLineSegment ) should equal( false )
+  it should " intersect with the horizontal down line segment" in {
+    verticalLeftLineSegment.intersectsLineSegment( horizontalDownLineSegment ) should equal( true )
   }
-  it should " not intersect with the horizontal upper line segment" in {
-    verticalLeftLineSegment.intersectsLineSegment( horizontalUpLineSegment ) should equal( false )
+  it should " intersect with the horizontal upper line segment" in {
+    verticalLeftLineSegment.intersectsLineSegment( horizontalUpLineSegment ) should equal( true )
   }
   it should " not intersect with the vertical right line segment" in {
     verticalLeftLineSegment.intersectsLineSegment( verticalRightLineSegment ) should equal( false )
@@ -87,11 +87,11 @@ class LineSegmentTest extends FlatSpec with ShouldMatchers {
   it should " intersect with the diagonal up right line segment" in {
     verticalRightLineSegment.intersectsLineSegment( diagonalUpRightLineSegment ) should equal( true )
   }
-  it should " not intersect with the horizontal down line segment" in {
-    verticalRightLineSegment.intersectsLineSegment( horizontalDownLineSegment ) should equal( false )
+  it should " intersect with the horizontal down line segment" in {
+    verticalRightLineSegment.intersectsLineSegment( horizontalDownLineSegment ) should equal( true )
   }
-  it should " not intersect with the horizontal upper line segment" in {
-    verticalRightLineSegment.intersectsLineSegment( horizontalUpLineSegment ) should equal( false )
+  it should " intersect with the horizontal upper line segment" in {
+    verticalRightLineSegment.intersectsLineSegment( horizontalUpLineSegment ) should equal( true )
   }
   it should " not intersect with the vertical left line segment" in {
     verticalRightLineSegment.intersectsLineSegment( verticalLeftLineSegment ) should equal( false )

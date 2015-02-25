@@ -54,7 +54,7 @@ class LineSegment( val p1 : Point, val p2 : Point ) extends Shape {
         }
         case x : LineSegment => {
           val yIntersection = as._2 * this.p1.x + lineSegment.p1.y - ( lineSegment.p1.x * as._2 )
-          if( lineSegment.p1.x < this.p1.x && this.p1.x < lineSegment.p2.x ) {
+          if( lineSegment.p1.x <= this.p1.x && this.p1.x <= lineSegment.p2.x ) {
             if( this.p1.y > this.p2.y ) return this.p1.y >= yIntersection && this.p2.y <= yIntersection
             else return this.p2.y >= yIntersection && this.p1.y <= yIntersection
           }
@@ -66,7 +66,7 @@ class LineSegment( val p1 : Point, val p2 : Point ) extends Shape {
     val xIntersection = ( bs._2 - bs._1 ) / ( as._1 - as._2 )
     val yIntersection = as._1 * xIntersection + bs._1
 
-    if( lineSegment.p1.x < xIntersection && xIntersection < lineSegment.p2.x ) {
+    if( lineSegment.p1.x <= xIntersection && xIntersection <= lineSegment.p2.x ) {
       if( this.p1.y > this.p2.y ) this.p1.y >= yIntersection && this.p2.y <= yIntersection
       else this.p2.y >= yIntersection && this.p1.y <= yIntersection
     }
@@ -102,29 +102,13 @@ object Group {
 /** A special case of a group consisting only of Points. */
 case class Polygon( override val children : Point* ) extends Group( children : _* ) {
 
-  def getLineSegments : List[ LineSegment ] = {
-    this.children.sliding( 2 ).toList.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
-  }
-
-  def intersections( ray : Ray ) : Integer = {
-    getLineSegments.foldLeft( 0 )( ( r, c ) => r + ( if( c.intersectsLineSegment( ray ) ) 1 else 0 ) )
-  }
-
-  def getBoundingBox : (Double, Double, Double, Double, Double, Rectangle) = {
-    val b = boundingBox( Polygon.this )
-    val rectangle = b.child.asInstanceOf[ Rectangle ]
-    (b.x, b.y, b.x + rectangle.width, b.y + rectangle.height, rectangle.area, rectangle)
-  }
-
-  def isOdd( num : Integer ) : Boolean = num % 2 == 1
-
   def getPolygonArea : Double = {
     val boundingBoxTuple = getBoundingBox
 
     def pointsInPolygon( xInitial : Double, xEdge : Double, yInitial : Double, yEdge : Double ) : Int = {
 
       def pointsInPolygonImpl( xValue : Double, yValue : Double, pointsPolygon : Int ) : Int = {
-        if( xValue >= xEdge && yValue >= yEdge ) pointsPolygon
+        if( xValue >= xEdge && yValue >= yEdge ) pointsPolygon + ( if( isOdd( intersections( Ray( Point( xValue, yValue ), Point( xEdge, yValue ) ) ) ) ) 1 else 0 )
         else if( yValue >= yEdge ) pointsInPolygonImpl( ( xValue + 0.1 ), yInitial, pointsPolygon + ( if( isOdd( intersections( Ray( Point( xValue, yValue ), Point( xEdge, yValue ) ) ) ) ) 1 else 0 ) )
         else pointsInPolygonImpl( xValue, ( yValue + 0.1 ), pointsPolygon + ( if( isOdd( intersections( Ray( Point( xValue, yValue ), Point( xEdge, yValue ) ) ) ) ) 1 else 0 ) )
       }
@@ -135,4 +119,20 @@ case class Polygon( override val children : Point* ) extends Group( children : _
     ( pointsInPolygon( boundingBoxTuple._1, boundingBoxTuple._3, boundingBoxTuple._2, boundingBoxTuple._4 ).toDouble / 100 )
 
   }
+
+  def intersections( ray : Ray ) : Integer = {
+    getLineSegments.foldLeft( 0 )( ( r, c ) => r + ( if( c.intersectsLineSegment( ray ) ) 1 else 0 ) )
+  }
+
+  def getLineSegments : List[ LineSegment ] = {
+    this.children.sliding( 2 ).toList.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
+  }
+
+  def getBoundingBox : (Double, Double, Double, Double, Double, Rectangle) = {
+    val b = boundingBox( Polygon.this )
+    val rectangle = b.child.asInstanceOf[ Rectangle ]
+    (b.x, b.y, b.x + rectangle.width, b.y + rectangle.height, rectangle.area, rectangle)
+  }
+
+  def isOdd( num : Integer ) : Boolean = num % 2 == 1
 }
