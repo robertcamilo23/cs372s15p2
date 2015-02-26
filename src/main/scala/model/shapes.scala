@@ -3,10 +3,6 @@ package model
 /** A common abstraction for graphical shapes. */
 sealed trait Shape
 
-/**
- * A decorator for specifying a shape's location.
- * In Scala, this cannot be a case class because we want to inherit from it.
- */
 class Location( val x : Double, val y : Double, val child : Shape ) extends Shape {
   require( child != null, "null child in " + getClass.getSimpleName )
 
@@ -16,11 +12,11 @@ class Location( val x : Double, val y : Double, val child : Shape ) extends Shap
   }
 }
 
-/** The companion object that allows us to use this class like a case class. */
 object Location {
   def apply( x : Double, y : Double, child : Shape ) = new Location( x, y, child )
 
   def unapply( l : Location ) = Some( (l.x, l.y, l.child) )
+
 }
 
 /** A rectangle with specified width and height. */
@@ -90,6 +86,25 @@ case class Ray( override val p1 : Point, override val p2 : Point ) extends LineS
 class Group( val children : Shape* ) extends Shape {
   require( children != null, "null children in " + getClass.getSimpleName )
   require( !children.contains( null ), "null child in " + getClass.getSimpleName )
+
+  def getBoundingBoxTuple : (Double, Double, Double, Double, Double, Rectangle) = {
+    val b = boundingBox( Group.this )
+    val rectangle = b.child.asInstanceOf[ Rectangle ]
+    (b.x, b.y, b.x + rectangle.width, b.y + rectangle.height, rectangle.area, rectangle)
+  }
+
+  def getArea : Double = {
+    children.head match {
+      case polygon : Polygon => {
+        children match {
+          case polygons : Seq[ Polygon ] => {
+            polygons.foldLeft( 0.0 )( ( r, c ) => r + c.getArea )
+          }
+        }
+      }
+      case _ => 0
+    }
+  }
 }
 
 /** The companion object that allows us to use this class like a case class. */
@@ -102,8 +117,8 @@ object Group {
 /** A special case of a group consisting only of Points. */
 case class Polygon( override val children : Point* ) extends Group( children : _* ) {
 
-  def getPolygonArea : Double = {
-    val boundingBoxTuple = getBoundingBox
+  override def getArea : Double = {
+    val boundingBoxTuple = getBoundingBoxTuple
 
     def pointsInPolygon( xInitial : Double, xEdge : Double, yInitial : Double, yEdge : Double ) : Int = {
 
@@ -126,12 +141,6 @@ case class Polygon( override val children : Point* ) extends Group( children : _
 
   def getLineSegments : List[ LineSegment ] = {
     this.children.sliding( 2 ).toList.foldLeft( List( LineSegment( this.children.head, this.children.last ) ) )( ( r, c ) => r :+ ( LineSegment( c.head, c.last ) ) )
-  }
-
-  def getBoundingBox : (Double, Double, Double, Double, Double, Rectangle) = {
-    val b = boundingBox( Polygon.this )
-    val rectangle = b.child.asInstanceOf[ Rectangle ]
-    (b.x, b.y, b.x + rectangle.width, b.y + rectangle.height, rectangle.area, rectangle)
   }
 
   def isOdd( num : Integer ) : Boolean = num % 2 == 1
